@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  # Servicio de la API (FastAPI)
+  api:
+    # Construye la imagen desde el Dockerfile en la carpeta 'main_service'
+    build:
+      context: ./main_service
+      dockerfile: Dockerfile
+    
+    # Mapea el puerto 8000 del contenedor al puerto 8000 de la máquina host
+    ports:
+      - "8080:8000"
+      
+    # Carga las variables de entorno definidas en el archivo .env
+    env_file:
+      - .env
+      
+    # Reinicia automáticamente el contenedor si falla
+    restart: always
+
+    # Dependencias: Asegura que la API espere a que la DB esté lista
+    depends_on:
+      db:
+        condition: service_healthy # Espera hasta que el chequeo de salud de la DB sea exitoso
+
+    # Opcional: Montar el código local para desarrollo en tiempo real (hot reload)
+    # volumes:
+    #   - ./main_service/app:/app/app
+
+  # Servicio de la Base de Datos (PostgreSQL)
+  db:
+    image: postgres:16-alpine # Utiliza una imagen ligera de Postgres
+    
+    # Carga las variables de entorno para la configuración de la DB
+    env_file:
+      - .env
+
+    # Mapea el puerto de la DB (opcional, útil para herramientas externas como DBeaver)
+    # ports:
+    #   - "5432:5432"
+
+    # Persistencia de Datos: Utiliza un volumen para guardar los datos de la DB
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+      
+    # Definición del chequeo de salud
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s # Espera inicial
+      
+    restart: always
+
+# Definición de los Volúmenes Persistentes
+volumes:
+  postgres_data:
