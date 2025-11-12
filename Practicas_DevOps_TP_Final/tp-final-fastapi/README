@@ -1,0 +1,46 @@
+# FastAPI Task Manager - Arquitectura Cloud-Native con Docker Compose
+
+Este proyecto implementa una API REST simple para la gestión de tareas, construida con FastAPI y persistencia de datos en PostgreSQL, orquestada completamente mediante Docker Compose.
+
+Cumple con los requisitos de un proyecto cloud-native: Dockerfile optimizado, pruebas automáticas, variables de entorno y flujo de CI/CD.
+
+## 🚀 Requisitos
+
+Asegúrate de tener instalado y ejecutándose:
+
+1.  **Docker Desktop** (o Docker Engine)
+2.  **Docker Compose** (generalmente incluido con Docker Desktop)
+3.  **make** (Para usar los atajos de desarrollo, opcional pero recomendado)
+
+## ⚙️ Configuración
+
+Antes de iniciar, debes crear el archivo de variables de entorno:
+
+1.  Crea un archivo llamado **`.env`** en la raíz del proyecto.
+2.  Copia las credenciales de PostgreSQL y la `DATABASE_URL` en él (ver el archivo `.env` para el contenido exacto).
+
+## ▶️ Ejecución del Proyecto
+
+Usa los atajos definidos en el `Makefile` para la gestión de los servicios.
+
+| Comando | Descripción |
+| :--- | :--- |
+| `make up` | **Construye la imagen, levanta la DB y la API en segundo plano (`-d`).** |
+| `make down` | Detiene y elimina los contenedores y la red (mantiene los datos de PostgreSQL). |
+| `make logs` | Muestra los logs en tiempo real de todos los contenedores. |
+
+### Acceso a la API
+
+Una vez que ejecutes `make up`, la API estará accesible. Recuerda que el puerto ha sido mapeado a **8080** para evitar conflictos.
+
+- **Documentación Interactiva (Swagger UI):** `http://localhost:8080/docs` 
+- **Endpoint de Salud:** `http://localhost:8080/health`
+
+## 🧪 Pruebas Automáticas
+
+El proyecto incluye pruebas unitarias con `pytest` que usan una base de datos SQLite en memoria para ser rápidas y aisladas.
+
+Para ejecutar las pruebas dentro del contenedor de la API:
+
+```bash
+make test
