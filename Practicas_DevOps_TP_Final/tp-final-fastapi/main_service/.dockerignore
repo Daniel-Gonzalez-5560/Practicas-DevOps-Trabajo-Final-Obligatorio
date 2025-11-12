@@ -1,0 +1,14 @@
+# Directorios de entorno virtual
+.venv
+venv
+
+# Caches y metadata de Python
+__pycache__
+*.pyc
+.pytest_cache
+.mypy_cache
+
+# Archivos de configuración y datos sensibles
+.env
+*.db
+database.db 

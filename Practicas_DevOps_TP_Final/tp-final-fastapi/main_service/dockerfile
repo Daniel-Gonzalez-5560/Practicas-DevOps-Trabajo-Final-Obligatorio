@@ -1,0 +1,38 @@
+# Etapa 1: Build - Prepara el entorno y copia dependencias
+FROM python:3.11-slim as builder
+
+# Define el directorio de trabajo dentro del contenedor
+WORKDIR /app
+
+# Instala dependencias del sistema necesarias para psycopg2 y para ejecutar tests
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libpq-dev \
+    # Dependencia opcional para ejecutar tests en CI
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copia los requisitos e instálalos
+COPY ./requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Etapa 2: Runtime - Entorno de ejecución más limpio y pequeño
+FROM python:3.11-slim
+COPY --from=builder /usr/local/bin /usr/local/bin
+
+# Define el mismo directorio de trabajo
+WORKDIR /app
+
+# Copia los paquetes de la etapa 'builder'
+COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+
+
+# Copia el código de la aplicación
+COPY ./app ./app
+
+# Exponer el puerto
+EXPOSE 8000
+
+# Comando para iniciar la API con Uvicorn
+# La aplicación debe estar en app.main:app (o la ruta que elijas)
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
